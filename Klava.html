@@ -3,11 +3,9 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport"
-    content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Klavarog Δ</title>
-  <link rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/stackoverflow-dark.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/stackoverflow-dark.min.css">
   <style>
     * {
       box-sizing: border-box;
@@ -64,7 +62,6 @@
       color: #8b949e;
     }
 
-    /* === ДВА СТОЛБЦА === */
     #main-layout {
       flex: 1;
       display: flex;
@@ -84,34 +81,10 @@
       min-height: 0;
     }
 
-    /* Левая панель: ввод + текст */
-    #input-container {
+    #text-container {
+      flex: 1;
       display: flex;
       flex-direction: column;
-      gap: 12px;
-    }
-
-    #intext {
-      width: 100%;
-      padding: 12px 14px;
-      background: #0d1117;
-      color: #c9d1d9;
-      font-family: 'Consolas', monospace;
-      font-size: 16px;
-      border: none;
-      border-radius: 6px;
-      transition: all 0.2s;
-    }
-
-    #intext:focus {
-      outline: none;
-      box-shadow: 0 0 0 2px #58a6ff;
-    }
-
-    #intext.error {
-      background: #ffeaa7;
-      color: #2d3436;
-      box-shadow: 0 0 0 2px #ffc107;
     }
 
     #text {
@@ -123,20 +96,50 @@
       line-height: 1.9;
       overflow-y: auto;
       border-radius: 6px;
-      /* white-space: pre-wrap; */
       word-break: break-all;
+      position: relative;
+      outline: none;
+      cursor: text;
     }
 
-    #text div {
+    #text:focus {
+      box-shadow: 0 0 0 2px #58a6ff;
+    }
+
+    #text .line {
       min-height: 1.9em;
+      position: relative;
     }
 
-    #text .checked {
+    #text .char {
+      position: relative;
+      display: inline-block;
+      white-space: pre;
+    }
+
+    #text .char.checked {
       color: #7ee787;
     }
 
-    #text.error {
-      color: #ff7b72;
+    #text .char.current {
+      border-bottom: 2px solid #58a6ff;
+      animation: blink 1s step-end infinite;
+    }
+
+    #text .char.current.error {
+      background: #ff7b72;
+      color: #fff;
+      border-bottom: 2px solid #ff7b72;
+    }
+
+    @keyframes blink {
+      0%, 49% { border-bottom-color: #58a6ff; }
+      50%, 100% { border-bottom-color: transparent; }
+    }
+
+    #text .char.current.error {
+      animation: none;
+    }
     }
 
     #text .hljs {
@@ -144,7 +147,6 @@
       padding: 0;
     }
 
-    /* Правая панель: пояснения */
     #explanation-panel {
       flex: 1;
       background: #0d1117;
@@ -196,7 +198,6 @@
       padding: 12px 0;
     }
 
-    /* === МОДАЛЬНОЕ ОКНО === */
     .modal {
       position: fixed;
       background: #161b22;
@@ -322,7 +323,6 @@
       accent-color: #58a6ff;
     }
 
-    /* Скроллбары */
     ::-webkit-scrollbar {
       width: 8px;
     }
@@ -358,40 +358,20 @@
   <div id="app">
     <div id="header">
       <a id="dict-link">Текст</a>
-      <a id="refresh"
-        title="Обновить">⟳</a>
+      <a id="refresh" title="Обновить">⟳</a>
       <div id="stats">
-        <span id="speed"
-          title="Скорость">--</span>
-        <span id="error"
-          title="Ошибки">--</span>
+        <span id="speed" title="Скорость">--</span>
+        <span id="error" title="Ошибки">--</span>
       </div>
     </div>
 
-    <!-- ДВА СТОЛБЦА -->
     <div id="main-layout">
-      <!-- ЛЕВАЯ ПАНЕЛЬ -->
       <div id="left-panel">
-        <div id="input-container">
-          <input type="text"
-            id="intext"
-            autocomplete="off"
-            spellcheck="false"
-            placeholder="Начните печатать...">
-          <div id="text">
-            <div>Введите свой текст выше и нажмите OK.</div>
-            <div>Enter your text above and click OK.</div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-          </div>
+        <div id="text-container">
+          <div id="text" tabindex="0"></div>
         </div>
       </div>
 
-      <!-- ПРАВАЯ ПАНЕЛЬ: ПОЯСНЕНИЯ -->
       <div id="right-panel">
         <div id="explanation-panel">
           <div class="panel-title">Пояснения</div>
@@ -402,19 +382,15 @@
       </div>
     </div>
 
-    <!-- МОДАЛЬНОЕ ОКНО -->
-    <div id="my_dict"
-      class="modal">
+    <div id="my_dict" class="modal">
       <div class="modal-header">
         <button id="my_dict_ok">OK</button>
         <span class="close">✕</span>
       </div>
-      <textarea id="dict_data"
-        placeholder="Введите текст для тренировки..."></textarea>
+      <textarea id="dict_data" placeholder="Введите текст для тренировки..."></textarea>
       <div class="modal-options">
         <label>
-          <input type="checkbox"
-            id="enable_highlight">
+          <input type="checkbox" id="enable_highlight">
           <span>Подсветка синтаксиса</span>
         </label>
         <label>
@@ -436,21 +412,16 @@
           </select>
         </label>
         <label>
-          <input type="checkbox"
-            id="enable_explanations">
+          <input type="checkbox" id="enable_explanations">
           <span>Включить пояснения</span>
         </label>
         <label>
           <span>Локальный файл:</span>
-          <input type="file"
-            id="explanations_file"
-            accept=".json">
+          <input type="file" id="explanations_file" accept=".json">
         </label>
         <label>
           <span>URL:</span>
-          <input type="text"
-            id="explanations_url"
-            placeholder="https://example.com/explanations.json">
+          <input type="text" id="explanations_url" placeholder="https://example.com/explanations.json">
         </label>
         <div id="load-status"></div>
       </div>
@@ -463,11 +434,13 @@
       constructor() {
         this.dict = [];
         this.currentLineIndex = 0;
+        this.currentCharIndex = 0;
         this.highlightEnabled = false;
         this.codeLanguage = '';
         this.explanationsEnabled = false;
         this.explanationsData = {};
         this.currentExplanation = null;
+        this.hasError = false;
         this.stats = {
           start: null,
           errors: 0,
@@ -479,7 +452,6 @@
         };
 
         this.elements = {
-          intext: document.getElementById('intext'),
           text: document.getElementById('text'),
           error: document.getElementById('error'),
           speed: document.getElementById('speed'),
@@ -509,25 +481,15 @@
           el.addEventListener('click', () => this.hideModal());
         });
 
-        this.elements.intext.addEventListener('input', () => this.checkInput());
-        this.elements.intext.addEventListener('keydown', (e) => {
-          if (e.key === 'Enter') {
-            e.preventDefault();
-            const input = this.elements.intext.value;
-            const targetLine = this.elements.text.children[0];
-            const targetText = targetLine.textContent.replace('¶', '');
-
-            if (input === targetText) {
-              this.completeLine(targetText);
-            }
-          }
-        });
+        this.elements.text.addEventListener('keydown', (e) => this.handleKeyPress(e));
+        this.elements.text.addEventListener('click', () => this.elements.text.focus());
 
         this.elements.enableHighlight.addEventListener('change', (e) => {
           this.elements.codeLanguage.disabled = !e.target.checked;
         });
 
         this.loadDefaultText();
+        this.elements.text.focus();
       }
 
       showModal() {
@@ -537,7 +499,7 @@
 
       hideModal() {
         this.elements.myDict.classList.remove('show');
-        this.elements.intext.focus();
+        this.elements.text.focus();
         this.elements.explanations_file.value = '';
       }
 
@@ -593,7 +555,7 @@ Enter your text for practice.`;
         this.generateLines();
         this.clearStats();
         this.hideModal();
-        this.updateExplanation(); // сразу обновим
+        this.updateExplanation();
       }
 
       async loadExplanationsFromFile(file) {
@@ -643,7 +605,8 @@ Enter your text for practice.`;
 
       clearStats() {
         this.stats = { start: null, errors: 0, totalTime: 0, totalLength: 0, totalWords: 0, totalErrors: 0, linesCompleted: 0 };
-        this.elements.intext.value = '';
+        this.currentCharIndex = 0;
+        this.hasError = false;
         this.updateDisplay();
       }
 
@@ -655,65 +618,184 @@ Enter your text for practice.`;
       }
 
       generateLines() {
-        const lines = this.elements.text.children;
-        for (let i = 0; i < lines.length; i++) {
+        this.elements.text.innerHTML = '';
+        const numLines = 8;
+        for (let i = 0; i < numLines; i++) {
           if (this.currentLineIndex >= this.dict.length) this.currentLineIndex = 0;
           const text = this.dict[this.currentLineIndex++];
-          const wrapped = this.wrapLine(text);
-          this.setLineContent(lines[i], wrapped);
+          const line = this.createLine(text);
+          this.elements.text.appendChild(line);
         }
+        this.updateCursor();
       }
 
-      setLineContent(el, text) {
-        const clean = text.replace('¶', '');
-        const hasMarker = text.endsWith('¶');
+      createLine(text) {
+        const div = document.createElement('div');
+        div.className = 'line';
+        
         if (this.highlightEnabled && this.codeLanguage) {
-          el.innerHTML = this.highlightCode(clean) + (hasMarker ? '¶' : '');
+          // Подсветка синтаксиса
+          try {
+            const highlighted = hljs.highlight(text, { 
+              language: this.codeLanguage, 
+              ignoreIllegals: true 
+            }).value;
+            
+            // Создаем временный элемент для парсинга HTML
+            const temp = document.createElement('div');
+            temp.innerHTML = highlighted;
+            
+            // Рекурсивно оборачиваем символы, сохраняя классы подсветки
+            this.wrapCharsInElement(temp, div, text);
+          } catch (e) {
+            // Если ошибка подсветки, используем простой текст
+            for (let i = 0; i < text.length; i++) {
+              const span = document.createElement('span');
+              span.className = 'char';
+              span.textContent = text[i];
+              div.appendChild(span);
+            }
+          }
         } else {
-          el.textContent = text;
+          // Простой текст без подсветки
+          for (let i = 0; i < text.length; i++) {
+            const span = document.createElement('span');
+            span.className = 'char';
+            span.textContent = text[i];
+            div.appendChild(span);
+          }
         }
+        
+        return div;
       }
 
-      wrapLine(text, max = 80) {
-        if (text.length <= max) return text + '¶';
-        const space = text.lastIndexOf(' ', max);
-        return (space > 0 ? text.substring(0, space + 1) : text.substring(0, max));
+      wrapCharsInElement(source, target, originalText) {
+        let charIndex = 0;
+        
+        const processNode = (node, parentClasses = '') => {
+          if (node.nodeType === Node.TEXT_NODE) {
+            const text = node.textContent;
+            for (let i = 0; i < text.length; i++) {
+              if (charIndex < originalText.length) {
+                const span = document.createElement('span');
+                span.className = 'char' + (parentClasses ? ' ' + parentClasses : '');
+                span.textContent = originalText[charIndex];
+                target.appendChild(span);
+                charIndex++;
+              }
+            }
+          } else if (node.nodeType === Node.ELEMENT_NODE) {
+            const classes = parentClasses + (node.className ? ' ' + node.className : '');
+            Array.from(node.childNodes).forEach(child => {
+              processNode(child, classes);
+            });
+          }
+        };
+        
+        Array.from(source.childNodes).forEach(node => processNode(node));
       }
 
-      checkInput() {
-        const input = this.elements.intext.value;
+      handleKeyPress(e) {
+        // Игнорируем модификаторы и функциональные клавиши
+        if (e.ctrlKey || e.altKey || e.metaKey) {
+          // Разрешаем Ctrl+R для обновления страницы
+          if (e.ctrlKey && e.key === 'r') return;
+          // Разрешаем Ctrl+A для выделения
+          if (e.ctrlKey && e.key === 'a') return;
+          e.preventDefault();
+          return;
+        }
+        
         const line = this.elements.text.children[0];
-        const target = line.textContent.replace('¶', '');
+        if (!line) return;
 
-        if (!input) {
-          this.stats.start = null; this.stats.errors = 0;
-          this.elements.intext.classList.remove('error');
-          this.elements.text.classList.remove('error');
-          this.setLineContent(line, target + '¶');
+        const chars = line.querySelectorAll('.char');
+        if (this.currentCharIndex >= chars.length) return;
+
+        const expectedChar = chars[this.currentCharIndex].textContent;
+
+        // ESC - сброс
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          this.refresh();
           return;
         }
 
-        if (!this.stats.start) this.stats.start = Date.now();
+        // Backspace - возврат назад
+        if (e.key === 'Backspace') {
+          e.preventDefault();
+          if (this.currentCharIndex > 0) {
+            this.currentCharIndex--;
+            chars[this.currentCharIndex].classList.remove('checked');
+            this.hasError = false;
+            this.updateCursor();
+          }
+          return;
+        }
 
-        if (target.startsWith(input)) {
-          this.elements.intext.classList.remove('error');
-          this.elements.text.classList.remove('error');
-          const checked = `<span class="checked">${this.highlightEnabled && this.codeLanguage ? this.highlightCode(input) : this.escapeHtml(input)}</span>`;
-          const rest = this.highlightEnabled && this.codeLanguage ? this.highlightCode(target.substring(input.length)) : this.escapeHtml(target.substring(input.length));
-          line.innerHTML = checked + rest + '¶';
+        // Игнорируем служебные клавиши
+        if (e.key.length !== 1) {
+          e.preventDefault();
+          return;
+        }
+
+        e.preventDefault();
+
+        // Старт таймера
+        if (!this.stats.start) {
+          this.stats.start = Date.now();
+        }
+
+        // Проверка правильности ввода
+        if (e.key === expectedChar) {
+          if (!this.hasError) {
+            // Правильный ввод
+            chars[this.currentCharIndex].classList.add('checked');
+            this.currentCharIndex++;
+
+            if (this.currentCharIndex >= chars.length) {
+              // Строка завершена
+              this.completeLine(Array.from(chars).map(c => c.textContent).join(''));
+            } else {
+              this.updateCursor();
+            }
+          } else {
+            // Была ошибка, но теперь правильный символ - сбрасываем ошибку
+            this.hasError = false;
+            this.updateCursor();
+          }
         } else {
-          this.elements.intext.classList.add('error');
-          this.elements.text.classList.add('error');
+          // Неправильный ввод
+          this.hasError = true;
           this.stats.errors++;
+          this.updateCursor();
         }
 
         this.updateExplanation();
       }
 
+      updateCursor() {
+        const line = this.elements.text.children[0];
+        if (!line) return;
+
+        const chars = line.querySelectorAll('.char');
+        chars.forEach((char, index) => {
+          char.classList.remove('current', 'error');
+          if (index === this.currentCharIndex) {
+            char.classList.add('current');
+            if (this.hasError) {
+              char.classList.add('error');
+            }
+          }
+        });
+      }
+
       completeLine(text) {
         const time = (Date.now() - this.stats.start) / 1000;
-        const len = text.length, words = text.split(' ').filter(w => w).length;
+        const len = text.length;
+        const words = text.split(' ').filter(w => w).length;
         const speed = len / time * 60;
+        
         if (speed < 3000) {
           this.stats.totalTime += time;
           this.stats.totalLength += len;
@@ -721,22 +803,30 @@ Enter your text for practice.`;
           this.stats.totalErrors += this.stats.errors;
           this.stats.linesCompleted++;
         }
+        
         this.updateDisplay();
         this.shiftLines();
-        this.elements.intext.value = '';
+        this.currentCharIndex = 0;
+        this.hasError = false;
         this.stats.start = null;
         this.stats.errors = 0;
+        this.updateCursor();
         this.updateExplanation();
       }
 
       shiftLines() {
-        const lines = Array.from(this.elements.text.children);
-        for (let i = 0; i < lines.length - 1; i++) {
-          lines[i].innerHTML = lines[i + 1].innerHTML;
+        const firstLine = this.elements.text.children[0];
+        if (firstLine) {
+          this.elements.text.removeChild(firstLine);
         }
-        if (this.currentLineIndex >= this.dict.length) this.currentLineIndex = 0;
-        const next = this.dict[this.currentLineIndex++];
-        this.setLineContent(lines[lines.length - 1], this.wrapLine(next));
+
+        if (this.currentLineIndex >= this.dict.length) {
+          this.currentLineIndex = 0;
+        }
+        
+        const text = this.dict[this.currentLineIndex++];
+        const newLine = this.createLine(text);
+        this.elements.text.appendChild(newLine);
       }
 
       updateDisplay() {
@@ -745,25 +835,31 @@ Enter your text for practice.`;
           this.elements.error.textContent = '--';
           return;
         }
+        
         const cps = this.stats.totalLength / this.stats.totalTime * 60;
         const wpm = this.stats.totalWords / this.stats.totalTime * 60;
         const err = (this.stats.totalErrors / this.stats.totalLength) * 100;
+        
         this.elements.speed.textContent = `${Math.round(cps)} (${Math.round(cps / 5)}/${Math.round(wpm)})`;
         this.elements.error.textContent = `${err.toFixed(2)}%`;
       }
 
       updateExplanation() {
-        const line = this.elements.text.children[0].textContent.replace('¶', '').trim();
-        if (!line || this.currentExplanation === line) return;
-        this.currentExplanation = line;
+        const line = this.elements.text.children[0];
+        if (!line) return;
+
+        const lineText = line.textContent.trim();
+        if (!lineText || this.currentExplanation === lineText) return;
+        this.currentExplanation = lineText;
 
         if (!this.explanationsEnabled || !Object.keys(this.explanationsData).length) {
           this.elements.explanationContent.innerHTML = '<div class="loading">Пояснения отключены или не загружены</div>';
           return;
         }
 
-        const words = this.extractWords(line);
+        const words = this.extractWords(lineText);
         const found = this.findExplanations(words);
+        
         if (!found.length) {
           this.elements.explanationContent.innerHTML = '<div class="no-explanations">Пояснений нет</div>';
           return;
@@ -784,13 +880,9 @@ Enter your text for practice.`;
       }
 
       escapeHtml(t) {
-        const d = document.createElement('div'); d.textContent = t; return d.innerHTML;
-      }
-
-      highlightCode(c) {
-        if (!this.codeLanguage || !c) return this.escapeHtml(c);
-        try { return hljs.highlight(c, { language: this.codeLanguage, ignoreIllegals: true }).value; }
-        catch { return this.escapeHtml(c); }
+        const d = document.createElement('div');
+        d.textContent = t;
+        return d.innerHTML;
       }
     }
 
